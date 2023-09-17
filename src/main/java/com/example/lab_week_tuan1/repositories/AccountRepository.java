@@ -11,26 +11,14 @@ import java.util.Optional;
 
 public class AccountRepository {
     private Connection connection;
+    public AccountRepository() throws Exception{
+        Class.forName("org.mariadb.jdbc.Driver");
+        String url = "jdbc:mariadb://localhost:3306/mydb?createDatabaseIfNotExist=true";
+        Connection connection = DriverManager.getConnection(url, "root", "root");
+    }
 
-//    public AccountRepository() throws Exception{
-//        String jdbcUrl = "jdbc:mariadb://localhost:3306/mydb?createDatabaseIfNotExist=true";
-//        String username = "root";
-//        String password = "root";
-//
-//        try {
-//            // Load the MariaDB JDBC driver
-//            Class.forName("org.mariadb.jdbc.Driver");
-//            // Create a connection to the database
-//            Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
-//            // Use the connection for database operations
-//            // Close the connection when done
-//            connection.close();
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
+
+
 
 
     public boolean create(Account account) throws SQLException, ClassNotFoundException {

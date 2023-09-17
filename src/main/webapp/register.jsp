@@ -10,6 +10,13 @@
             background-color: #f0f0f0;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('https://img.freepik.com/free-vector/black-banner-with-yellow-geometric-shapes_1017-32327.jpg');
+            background-size: cover; /* This property scales the image to cover the entire element */
+            background-repeat: no-repeat; /* This property prevents the image from repeating */
         }
 
         .container {
@@ -65,7 +72,7 @@
 <body>
 <div class="container">
     <h1>User Registration</h1>
-    <form action="control-servlet" method="post">
+    <form action="loginserlet" method="post">
         <div class="form-group">
             <label for="accountId">Account id:</label>
             <input type="text" id="accountId" name="accountId" required>

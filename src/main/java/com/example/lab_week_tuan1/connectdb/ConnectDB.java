@@ -10,7 +10,7 @@ public class ConnectDB {
 
     public ConnectDB() throws ClassNotFoundException, SQLException {
         Class.forName("org.mariadb.jdbc.Driver");
-        String url = "jdbc:mariadb://mysql:3306/mydb?createDatabaseIfNotExist=true";
+        String url = "jdbc:mariadb://localhost:3306/mydb?createDatabaseIfNotExist=true";
         connection = DriverManager.getConnection(url, "root", "root");
     }
 
