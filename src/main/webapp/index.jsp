@@ -111,6 +111,8 @@
 <body>
 <div class="container">
     <h4>Login 20008341 Nguyen Gia Hy</h4>
+    <p>Login addmin with :giahynguyen33@gmail.com ,pw:123</p>
+    <p>Login User with :123@saf ,pw:1</p>
     <form action="loginserlet" method="post" onsubmit="return validateForm()">
         <div class="form-group">
             <label for="email">email:</label>

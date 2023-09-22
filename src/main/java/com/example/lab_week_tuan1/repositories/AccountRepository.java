@@ -1,8 +1,7 @@
 package com.example.lab_week_tuan1.repositories;
 
 import com.example.lab_week_tuan1.connectdb.ConnectDB;
-import com.example.lab_week_tuan1.models.Account;
-import com.example.lab_week_tuan1.models.Status;
+import com.example.lab_week_tuan1.models.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -136,7 +135,39 @@ public class AccountRepository {
         }
     }
 
-}
+
+    public Optional<Account> getById(String AccountId) throws SQLException, ClassNotFoundException {
+        Connection con;
+        con = ConnectDB.getInstance().getConnection();
+        PreparedStatement statement = null;
+        try {
+            String sql = "SELECT * FROM account WHERE account_id=?";
+            statement = con.prepareStatement(sql);
+            statement.setString(1, AccountId);
+
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                Account account = new Account();
+                account.setAccount_id(rs.getString("account_id"));
+                account.setFull_name(rs.getString("full_name"));
+                account.setEmail(rs.getString("email"));
+                account.setPassword(rs.getString("password"));
+                account.setPhone(rs.getString("phone"));
+                account.setStatus(Status.fromCode(rs.getInt("status")));
+
+                return Optional.of(account);
+            } else {
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+
+}}
 
 
 

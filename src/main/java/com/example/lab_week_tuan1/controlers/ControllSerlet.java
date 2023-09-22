@@ -1,8 +1,10 @@
 package com.example.lab_week_tuan1.controlers;
 
 import com.example.lab_week_tuan1.models.Account;
+import com.example.lab_week_tuan1.models.GrantAccess;
 import com.example.lab_week_tuan1.models.Status;
 import com.example.lab_week_tuan1.repositories.AccountRepository;
+import com.example.lab_week_tuan1.repositories.GrantAccessRespository;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,6 +16,8 @@ import org.checkerframework.checker.units.qual.A;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @WebServlet(name = "ControllSerlet", value = "/loginserlet")
@@ -41,6 +45,9 @@ public class ControllSerlet extends HttpServlet {
 
         try {
             accountRepository = new AccountRepository();
+            GrantAccessRespository gA=null;
+            List <Account> listAccount=new ArrayList<>();
+            GrantAccess grantAccessdelete=null;
             if(action.equals("logon")){
             Optional<Account> account=accountRepository.logon(req.getParameter("email"),req.getParameter("password"));
 
@@ -50,6 +57,26 @@ public class ControllSerlet extends HttpServlet {
                    out.println("alert('Account is not exist ,please register an acount ');");
                    out.println("location='index.jsp';");
                    out.println("</script>");
+               }
+               else{
+
+
+                   gA=new GrantAccessRespository();
+                   listAccount =accountRepository.getAll();
+
+                   GrantAccess grantAccess=gA.checkAccount(account.get().getAccount_id());
+                   if(grantAccess.getRole().getRole_id().equals("am")){
+                       req.setAttribute("grantAccess",grantAccess);
+                       req.setAttribute("listAccount",listAccount);
+
+                       RequestDispatcher dispatcher=req.getRequestDispatcher("AdminDashBoard.jsp");
+                       dispatcher.forward(req, resp);
+                   }
+                   else{
+                       req.setAttribute("account",account.get());
+                       RequestDispatcher dispatcher=req.getRequestDispatcher("dashboard.jsp");
+                       dispatcher.forward(req, resp);
+                   }
                }
 
            }
@@ -81,10 +108,57 @@ public class ControllSerlet extends HttpServlet {
                     out.println("location='register.jsp';");
                     out.println("</script>");
                 }
+            } else if (action.equals("delete")) {
+                if(accountRepository.delete(req.getParameter("account_id"))){
+                    for(int i=0;i<listAccount.size();i++){
+                        if(listAccount.get(i).getAccount_id().equals(req.getParameter("account_id"))){
+                            listAccount.remove(i);
+                            return ;
+                        }
+                    }
+                    resp.sendRedirect("Success.jsp");
+
+                }
+                else{
+                    resp.sendRedirect("editAccount.jsp");
+                }
 
 
 
+            }
+            else if (action.equals("editredirect")) {
 
+                Optional<Account> account=accountRepository.getById(req.getParameter("account_id"));
+
+                req.setAttribute("account",account.get());
+                RequestDispatcher dispatcher=req.getRequestDispatcher("editAccount.jsp");
+                dispatcher.forward(req, resp);
+            }
+            else if(action.equals("edit")){
+                Account  acupdate=new Account();
+                acupdate.setAccount_id(req.getParameter("accountId"));
+                acupdate.setPassword(req.getParameter("password"));
+                acupdate.setFull_name(req.getParameter("fullName"));
+                acupdate.setEmail(req.getParameter("email"));
+                acupdate.setPhone(req.getParameter("phone"));
+                int statusCode = Integer.parseInt(req.getParameter("status"));
+                Status status = Status.fromCode(statusCode);
+                acupdate.setStatus(status);
+                System.out.println(acupdate);
+                if(accountRepository.update(acupdate)){
+                    PrintWriter out = resp.getWriter();
+                    out.println("<script type=\"text/javascript\">");
+                    out.println("alert('update thanh cong ');");
+                    out.println("location='AdminDashBoard.jsp';");
+                    out.println("</script>");
+                }
+                else{
+                    PrintWriter out = resp.getWriter();
+                    out.println("<script type=\"text/javascript\">");
+                    out.println("alert('update that bai ');");
+                    out.println("location='AdminDashBoard.jsp';");
+                    out.println("</script>");
+                }
 
             }
 
@@ -92,72 +166,7 @@ public class ControllSerlet extends HttpServlet {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
-//        if ("logon".equals(action)) {
-//            handleLogon(req, resp, accountRepository);
-//        } else if ("register".equals(action)) {
-//            handleRegistration(req, resp, accountRepository);
-//        }
     }
-
-//    private void handleLogon(HttpServletRequest req, HttpServletResponse resp, AccountRepository accountRepository)
-//            throws ServletException, IOException {
-//        String email = req.getParameter("email");
-//        String password = req.getParameter("password");
-//
-//        try {
-//            Optional<Account> account = accountRepository.logon(email, password);
-//
-//            if (account.isPresent()) {
-//                req.setAttribute("account", account.get());
-//                RequestDispatcher dispatcher = req.getRequestDispatcher("dashboard.jsp");
-//                dispatcher.forward(req, resp);
-//            } else {
-//                showErrorAlert(resp, "Account does not exist", "index.jsp");
-//            }
-//        } catch (SQLException | ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private void handleRegistration(HttpServletRequest req, HttpServletResponse resp, AccountRepository accountRepository)
-//            throws ServletException, IOException {
-//        Account account = new Account();
-//        account.setPassword(req.getParameter("password"));
-//        account.setFull_name(req.getParameter("fullName"));
-//        account.setEmail(req.getParameter("email"));
-//        account.setPhone(req.getParameter("phone"));
-//        Status status = Status.valueOf(req.getParameter("status"));
-//        account.setStatus(status);
-//
-//        boolean registrationSuccess = false;
-//
-//        try {
-//            registrationSuccess = accountRepository.create(account);
-//        } catch (SQLException | ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        if (registrationSuccess) {
-//            showSuccessAlert(resp, "Registration success", "index.jsp");
-//        } else {
-//            showErrorAlert(resp, "Registration failed", "register.jsp");
-//        }
-//    }
-//
-//    private void showErrorAlert(HttpServletResponse resp, String message, String redirectUrl) throws IOException {
-//        PrintWriter out = resp.getWriter();
-//        out.println("<script type=\"text/javascript\">");
-//        out.println("alert('" + message + "');");
-//        out.println("location='" + redirectUrl + "';");
-//        out.println("</script>");
-//    }
-//
-//    private void showSuccessAlert(HttpServletResponse resp, String message, String redirectUrl) throws IOException {
-//        showErrorAlert(resp, message, redirectUrl);
-//    }
-
 
     public void destroy() {
     }
