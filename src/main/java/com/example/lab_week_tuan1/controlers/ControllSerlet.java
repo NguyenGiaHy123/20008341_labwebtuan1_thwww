@@ -2,9 +2,11 @@ package com.example.lab_week_tuan1.controlers;
 
 import com.example.lab_week_tuan1.models.Account;
 import com.example.lab_week_tuan1.models.GrantAccess;
+import com.example.lab_week_tuan1.models.Logs;
 import com.example.lab_week_tuan1.models.Status;
 import com.example.lab_week_tuan1.repositories.AccountRepository;
 import com.example.lab_week_tuan1.repositories.GrantAccessRespository;
+import com.example.lab_week_tuan1.repositories.LogRepository;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,11 +18,12 @@ import org.checkerframework.checker.units.qual.A;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@WebServlet(name = "ControllSerlet", value = "/loginserlet")
+@WebServlet(name = "ControllSerlet", value = "/controlserlet")
 public class ControllSerlet extends HttpServlet {
     private String message;
 
@@ -30,18 +33,32 @@ public class ControllSerlet extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html");
+        String action = request.getParameter("action");
+        List<Account> listAccount=new ArrayList<>();
 
-        try {
-            AccountRepository accountRepository=new AccountRepository();
+            if(action.equals("delete")){
+                AccountRepository accountRepository= null;
+                try {
+                    accountRepository = new AccountRepository();
+                    listAccount =accountRepository.getAll();
+                    request.setAttribute("listAccount",listAccount);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            } else if (action.equals("getlogs")) {
+                System.out.println("vao trang gi log ");
+
+
+            }
+
+
     }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
         AccountRepository accountRepository;
+        LogRepository logresitory=new LogRepository();
 
         try {
             accountRepository = new AccountRepository();
@@ -60,15 +77,15 @@ public class ControllSerlet extends HttpServlet {
                }
                else{
 
-
                    gA=new GrantAccessRespository();
                    listAccount =accountRepository.getAll();
-
                    GrantAccess grantAccess=gA.checkAccount(account.get().getAccount_id());
+                   LocalDate loginTime = LocalDate.now(); // Replace this with your actual login time
+                   LocalDate logoutTime = LocalDate.now(); // Replace this with your actual logout time
+                   Logs logs = new Logs( grantAccess.getAccount(), loginTime, logoutTime, "Your notes here");
+                   logresitory.create(logs);
                    if(grantAccess.getRole().getRole_id().equals("am")){
-                       req.setAttribute("grantAccess",grantAccess);
                        req.setAttribute("listAccount",listAccount);
-
                        RequestDispatcher dispatcher=req.getRequestDispatcher("AdminDashBoard.jsp");
                        dispatcher.forward(req, resp);
                    }
@@ -78,11 +95,9 @@ public class ControllSerlet extends HttpServlet {
                        dispatcher.forward(req, resp);
                    }
                }
-
            }
 
             else if(action.equals("register")){
-
                 Account  ac=new Account();
                 ac.setAccount_id(req.getParameter("accountId"));
                 ac.setPassword(req.getParameter("password"));
@@ -92,8 +107,6 @@ public class ControllSerlet extends HttpServlet {
                 int statusCode = Integer.parseInt(req.getParameter("status"));
                 Status status = Status.fromCode(statusCode);
                 ac.setStatus(status);
-
-
                 if(accountRepository.create(ac)){
                     PrintWriter out = resp.getWriter();
                     out.println("<script type=\"text/javascript\">");
@@ -110,13 +123,16 @@ public class ControllSerlet extends HttpServlet {
                 }
             } else if (action.equals("delete")) {
                 if(accountRepository.delete(req.getParameter("account_id"))){
-                    for(int i=0;i<listAccount.size();i++){
-                        if(listAccount.get(i).getAccount_id().equals(req.getParameter("account_id"))){
-                            listAccount.remove(i);
-                            return ;
-                        }
-                    }
-                    resp.sendRedirect("Success.jsp");
+                    PrintWriter out = resp.getWriter();
+                    listAccount =accountRepository.getAll();
+                    req.setAttribute("listAccount",listAccount);
+
+                    out.println("<script type=\"text/javascript\">");
+                    out.println("alert('xoa thanh cong');");
+                    out.println("</script>");
+                    RequestDispatcher dispatcher=req.getRequestDispatcher("AdminDashBoard.jsp");
+                    dispatcher.forward(req, resp);
+
 
                 }
                 else{
@@ -147,9 +163,12 @@ public class ControllSerlet extends HttpServlet {
                 System.out.println(acupdate);
                 if(accountRepository.update(acupdate)){
                     PrintWriter out = resp.getWriter();
+                    listAccount =accountRepository.getAll();
+                    req.setAttribute("listAccount",listAccount);
+                    RequestDispatcher dispatcher=req.getRequestDispatcher("AdminDashBoard.jsp");
+                    dispatcher.forward(req, resp);
                     out.println("<script type=\"text/javascript\">");
-                    out.println("alert('update thanh cong ');");
-                    out.println("location='AdminDashBoard.jsp';");
+                    out.println("alert('xoa thanh cong');");
                     out.println("</script>");
                 }
                 else{

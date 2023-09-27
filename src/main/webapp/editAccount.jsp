@@ -77,7 +77,7 @@
         Account account = (Account) accountObj;
     %>
     <h1>User Edit account</h1>
-    <form action="loginserlet" method="post">
+    <form action="controlserlet" method="post">
         <div class="form-group">
             <label for="accountId">Account id:</label>
             <input type="text"  id="accountId" name="accountId" value="<%= account.getAccount_id() %>" required>

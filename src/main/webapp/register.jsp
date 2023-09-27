@@ -72,7 +72,7 @@
 <body>
 <div class="container">
     <h1>User Registration</h1>
-    <form action="loginserlet" method="post">
+    <form action="controlserlet" method="post">
         <div class="form-group">
             <label for="accountId">Account id:</label>
             <input type="text" id="accountId" name="accountId" required>

@@ -37,6 +37,9 @@
 <div class="container">
     <div class="d-flex text-center align-items-center justify-content-between">
         <h1>Dashboard</h1>
+        <div class="">
+            <button class="">Quản lý Log </button>
+        </div>
         <!-- Logout Button -->
     </div>
                     <div class="card">

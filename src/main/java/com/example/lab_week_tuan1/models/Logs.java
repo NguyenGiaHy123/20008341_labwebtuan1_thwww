@@ -1,9 +1,8 @@
 package com.example.lab_week_tuan1.models;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 public class Logs {
     private int id;
-    private String account_id;
+    private Account account;
     private LocalDate login_time;
     private LocalDate logout_time;
     private String notes;
@@ -16,12 +15,12 @@ public class Logs {
         this.id = id;
     }
 
-    public String getAccount_id() {
-        return account_id;
+    public Account getAccount_id() {
+        return account;
     }
 
     public void setAccount_id(String account_id) {
-        this.account_id = account_id;
+        this.account = account;
     }
 
     public LocalDate getLogin_time() {
@@ -51,9 +50,9 @@ public class Logs {
     public Logs() {
     }
 
-    public Logs(int id, String account_id, LocalDate login_time, LocalDate logout_time, String notes) {
+    public Logs(Account account, LocalDate login_time, LocalDate logout_time, String notes) {
         this.id = id;
-        this.account_id = account_id;
+        this.account = account;
         this.login_time = login_time;
         this.logout_time = logout_time;
         this.notes = notes;
@@ -63,7 +62,7 @@ public class Logs {
     public String toString() {
         return "Logs{" +
                 "id=" + id +
-                ", account_id='" + account_id + '\'' +
+                ", account=" + account +
                 ", login_time=" + login_time +
                 ", logout_time=" + logout_time +
                 ", notes='" + notes + '\'' +
